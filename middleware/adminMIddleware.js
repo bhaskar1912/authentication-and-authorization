@@ -1,10 +1,12 @@
-const isAdminUser = (req, res, next) => {
+const adminMiddleware = (req, res, next) => {
+  console.log("admin");
   if (req.userInfo.role !== "admin") {
-    res.status(403).json({
+    return res.status(403).json({
       success: false,
-      message: "access denied admin rights required",
+      message: "Access denied: admin rights required",
     });
   }
   next();
 };
-module.exports = isAdminUser;
+
+module.exports = adminMiddleware;

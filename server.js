@@ -4,6 +4,7 @@ const connectDb = require("./database/db");
 const router = require("./routes/authRoutes");
 const homeRoutes = require("./routes/homeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const imageRoutes = require("./routes/imageRoutes");
 const app = express();
 
 // connect to database
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/api/auth", router);
 app.use("/api/home", homeRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/image", imageRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -24,8 +24,6 @@ const authMiddleware = (req, res, next) => {
       message: "Access denined no token provided please login to continue",
     });
   }
-
-  next();
 };
 
 module.exports = authMiddleware;

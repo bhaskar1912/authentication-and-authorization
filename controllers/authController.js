@@ -83,7 +83,7 @@ const loginUser = async (req, res) => {
       },
       process.env.JWT_SECREAT_KEY,
       {
-        expiresIn: "15m",
+        expiresIn: "30m",
       }
     );
     res.status(200).json({
@@ -100,4 +100,88 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.userInfo.userId;
+    // extract old and new password
+    const { oldPassword, newPassword } = req.body;
+    //find the current loggedin user
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+
+    //check is password is correct
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordMatch) {
+      res.status(400).json({
+        success: false,
+        message: "invalid old password",
+      });
+    }
+
+    //hash the new password here
+
+    const salt = await bcrypt.genSalt(10);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+    //update user password
+
+    user.password = newHashedPassword;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "password changed successfully",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "error occured please try again",
+    });
+  }
+};
+
+const forgetPassword = async (req, res) => {
+  try {
+    //extract username and reset password
+    const { username, resetpassword } = req.body;
+
+    //check if username exist or not
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "user not exit ",
+      });
+    }
+    //hash the password
+
+    const salt = await bcrypt.genSalt(10);
+    const resetnewHashPassword = await bcrypt.hash(resetpassword, salt);
+
+    //save the password
+
+    user.password = resetnewHashPassword;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Your password has been reset successfully",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "error occured please try againn",
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, changePassword, forgetPassword };
